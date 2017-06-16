@@ -9,26 +9,9 @@ skins = {}
 skins.modpath = minetest.get_modpath(minetest.get_current_modname())
 skins.default = "character_1"
 
-skins.type = { SPRITE=0, MODEL=1, ERROR=99 }
-skins.get_type = function(texture)
-	if not skins.is_skin(texture) then
-		return skins.type.ERROR
-	end
-	return skins.type.MODEL
-end
-
-skins.is_skin = function(texture)
-	if not texture then
-		return false
-	end
-	if not skins.meta[texture] then
-		return false
-	end
-	return true
-end
-
+dofile(skins.modpath.."skin_meta_api.lua")
+dofile(skins.modpath.."/api.lua")
 dofile(skins.modpath.."/skinlist.lua")
-dofile(skins.modpath.."/players.lua")
 
 -- Unified inventory page/integration
 if minetest.get_modpath("unified_inventory") then
@@ -37,4 +20,16 @@ end
 
 if minetest.get_modpath("sfinv") then
 	dofile(skins.modpath.."/sfinv_page.lua")
+end
+
+-- 3d_armor compatibility
+if minetest.global_exists("armor") then
+	armor.get_player_skin = function(self, name)
+		local skin = skins.get_player_skin(minetest.get_player_by_name(name))
+		return skin:get_meta("_key") --3d_armor adds a ".png" but it should be compatible in most cases
+	end
+	armor.get_preview = function(self, name)
+		local skin = skins.get_player_skin(minetest.get_player_by_name(name))
+		return skin:get_meta("preview")
+	end
 end
