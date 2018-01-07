@@ -75,7 +75,20 @@ end
 function skins.get_skinlist_for_player(playername)
 	local skinslist = {}
 	for _, skin in pairs(skins.meta) do
-		if skin:is_applicable_for_player(playername) then
+		if skin:is_applicable_for_player(playername) and skin:get_meta("in_inventory_list") ~= false then
+			table.insert(skinslist, skin)
+		end
+	end
+	table.sort(skinslist, function(a,b) return a:get_meta("_sort_id") < b:get_meta("_sort_id") end)
+	return skinslist
+end
+
+-- Get skinlist selected by metadata
+function skins.get_skinlist_with_meta(key, value)
+	assert(key, "key parameter for skins.get_skinlist_with_meta() missed")
+	local skinslist = {}
+	for _, skin in pairs(skins.meta) do
+		if skin:get_meta(key) == value then
 			table.insert(skinslist, skin)
 		end
 	end
